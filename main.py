@@ -15,14 +15,20 @@ async def ping(ctx):
     await ctx.send('pong')
 
 @bot.command()
-async def last_match(ctx, steam_id):
-    stats = await api.get_player_match_history(steam_id)
+async def last_match(ctx, deadlock_id):
+    stats = await api.get_player_last_match(int(deadlock_id))
 
     if not stats:
         await ctx.send('Ошибка')
         return
     
-    message = f'{stats['match_id']}, {stats['hero']}, {stats['kills']}, {stats['deaths']}, {stats['result']}'
+    message = (
+        f"Матч: {stats['match_id']}\n"
+        f"Герой: {stats['hero_id']}\n"
+        f"Убийства: {stats['player_kills']}\n"
+        f"Смерти: {stats['player_deaths']}\n"
+        f"Результат: {stats['match_result']}"
+    )
     await ctx.send(message)
 
 bot.run(cr.TOKEN)
