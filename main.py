@@ -22,9 +22,11 @@ async def last_match(ctx, deadlock_id):
         await ctx.send('Ошибка')
         return
     
+    hero_name = await api.get_hero_by_id(stats["hero_id"])
+
     message = (
         f"Матч: {stats['match_id']}\n"
-        f"Герой: {stats['hero_id']}\n"
+        f"Герой: {hero_name}\n"
         f"Убийства: {stats['player_kills']}\n"
         f"Смерти: {stats['player_deaths']}\n"
         f"Результат: {stats['match_result']}"

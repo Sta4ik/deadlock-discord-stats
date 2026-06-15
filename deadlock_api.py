@@ -35,6 +35,23 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_hero_by_id(self, hero_id):
+        try:
+            resp = await self.client.get(f"{self.url}/v1/assets/heroes/{hero_id}")
+            resp.raise_for_status()
+            raw = await resp.aread()
+            data = json.loads(raw)
+
+            if not data:
+                return None
+            
+            return data["name"]
+
+        except Exception as e:
+            print("Error:", e)
+            return None
+
 
     async def close(self):
         await self.client.aclose()
