@@ -52,6 +52,15 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_id_by_steam_id(self, steam_id):
+        try:
+            id = steam_id - 76561197960265728
+            return id
+        
+        except Exception as e:
+            print("Error:", e)
+            return None
 
     async def close(self):
         await self.client.aclose()

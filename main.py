@@ -58,4 +58,14 @@ async def last_match(ctx, deadlock_id):
 
     await ctx.send(embed=embed)
 
+@bot.command()
+async def get_id(ctx, steam_id):
+    id = await api.get_id_by_steam_id(int(steam_id))
+    
+    if not id:
+        await ctx.send(f"Ошибка получения id")
+        return
+    
+    await ctx.send(id)
+
 bot.run(cr.TOKEN)
