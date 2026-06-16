@@ -31,9 +31,9 @@ async def last_match(ctx, deadlock_id):
     hero_name = hero["name"]
     hero_icon = hero["images"]["icon_image_small"]
 
-    color = (discord.Color.green() if stats["match_result"] == 0 else discord.Color.red())
+    color = (discord.Color.red() if stats["match_result"] == 0 else discord.Color.green())
 
-    result = "Поражение" if stats["match_result"] == 1 else "Победа"
+    result = "Поражение" if stats["match_result"] == 0 else "Победа"
 
     duration_min = stats["match_duration_s"] // 60
     duration_sec = stats["match_duration_s"] % 60
@@ -57,6 +57,5 @@ async def last_match(ctx, deadlock_id):
     embed.set_footer(text="Deadlock stater")
 
     await ctx.send(embed=embed)
-
 
 bot.run(cr.TOKEN)
