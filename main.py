@@ -63,9 +63,31 @@ async def get_id(ctx, steam_id):
     id = await api.get_id_by_steam_id(int(steam_id))
     
     if not id:
-        await ctx.send(f"Ошибка получения id")
+        await ctx.send(f"Ошибка получения deadlock id с Steam id {steam_id}")
         return
     
     await ctx.send(id)
 
-bot.run(cr.TOKEN)
+@bot.command()
+async def whois(ctx, account_id):
+    steam_info = await api.get_steam_profile_by_id(int(account_id))
+
+    if not steam_info:
+        await ctx.send(f"Ошибка получения стим профиля с deadlock id {account_id}")
+        return
+
+    embed = discord.Embed(
+        title=steam_info["name"],
+        url=steam_info["steam_url"],
+        color=discord.Color.blue()
+    )
+
+    embed.set_thumbnail(url=steam_info["avatar"])
+
+    embed.add_field(name="Настоящее имя", value=steam_info["realname"] or "Не указано", inline=False)
+    embed.add_field(name="Матчей за 30 дней", value=steam_info["matches_played_last_30d"], inline=True)
+
+    await ctx.send(embed=embed)
+
+if __name__ == "__main__":
+    bot.run(cr.TOKEN)

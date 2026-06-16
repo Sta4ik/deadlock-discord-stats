@@ -61,6 +61,39 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_steam_id_by_id(self, id):
+        try:
+            steam_id = id + 76561197960265728
+            return steam_id
+        
+        except Exception as e:
+            print("Error:", e)
+            return None
+        
+    async def get_steam_profile_by_id(self, id):
+        try:
+            steam_id = await self.get_steam_id_by_id(id)
+            resp = await self.client.get(f"{self.url}/v1/players/steam?account_ids={steam_id}")
+            resp.raise_for_status()
+
+            raw = await resp.aread()
+            data = json.loads(raw)
+
+            if not data:
+                return None
+            
+            return {
+                "name": data[0]["personaname"],
+                "realname": data[0]["realname"],
+                "avatar": data[0]["avatar"],
+                "steam_url": data[0]["profileurl"],
+                "matches_played_last_30d": data[0]["matches_played_last_30d"]
+            }
+        
+        except Exception as e:
+            print("Error:", e)
+            return None
 
     async def close(self):
         await self.client.aclose()
