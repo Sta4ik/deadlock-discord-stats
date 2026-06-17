@@ -15,8 +15,12 @@ async def ping(ctx):
     await ctx.send('pong')
 
 @bot.command(aliases=["last"])
-async def last_match(ctx, deadlock_id):
+async def last_match(ctx, deadlock_id=None):
     try:
+        if not deadlock_id:
+            await ctx.send("Укажите deadlock id")
+            return
+        
         stats = await api.get_player_last_match(int(deadlock_id))
 
         if not stats:
@@ -64,8 +68,12 @@ async def last_match(ctx, deadlock_id):
         await ctx.send(f'Ошибка получения последнего матча игрока {deadlock_id}')
 
 @bot.command(aliases=["getid"])
-async def get_id(ctx, steam_id):
+async def get_id(ctx, steam_id=None):
     try:
+        if not steam_id:
+            await ctx.send("Укажите SteamID64")
+            return
+        
         id = await api.get_id_by_steam_id(int(steam_id))
         
         if not id:
@@ -79,8 +87,12 @@ async def get_id(ctx, steam_id):
         await ctx.send(f"Ошибка получения deadlock id с Steam id {steam_id}")
 
 @bot.command(aliases=["whois"])
-async def who_is(ctx, account_id):
+async def who_is(ctx, account_id=None):
     try:
+        if not account_id:
+            await ctx.send("Укажите deadlock id")
+            return
+        
         steam_info = await api.get_steam_profile_by_id(int(account_id))
 
         if not steam_info:
@@ -105,8 +117,12 @@ async def who_is(ctx, account_id):
         await ctx.send(f"Ошибка получения стим профиля с deadlock id {account_id}")
 
 @bot.command(aliases=["lead"])
-async def leaderbord(ctx, region):
+async def leaderbord(ctx, region=None):
     try:
+        if not region:
+            await ctx.send("Укажите регион (Europe, Asia, NAmerica, SAmerica, Oceania)")
+            return
+        
         leaderbord = await api.get_leaderboard(region)
 
         if not leaderbord:
@@ -115,7 +131,7 @@ async def leaderbord(ctx, region):
         
         message = ""
         for i in range(0, 10):
-            message += f"{i} - {leaderbord[i]['account_name']}\n"
+            message += f"{i + 1} - {leaderbord[i]['account_name']}\n"
 
         await ctx.send(message)
 
