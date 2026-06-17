@@ -14,7 +14,7 @@ bot = commands.Bot(command_prefix='#', intents=intents)
 async def ping(ctx):
     await ctx.send('pong')
 
-@bot.command()
+@bot.command(aliases=["last"])
 async def last_match(ctx, deadlock_id):
     try:
         stats = await api.get_player_last_match(int(deadlock_id))
@@ -63,7 +63,7 @@ async def last_match(ctx, deadlock_id):
         print("Error:", e)
         await ctx.send(f'Ошибка получения последнего матча игрока {deadlock_id}')
 
-@bot.command()
+@bot.command(aliases=["getid"])
 async def get_id(ctx, steam_id):
     try:
         id = await api.get_id_by_steam_id(int(steam_id))
@@ -78,8 +78,8 @@ async def get_id(ctx, steam_id):
         print("Error:", e)
         await ctx.send(f"Ошибка получения deadlock id с Steam id {steam_id}")
 
-@bot.command()
-async def whois(ctx, account_id):
+@bot.command(aliases=["whois"])
+async def who_is(ctx, account_id):
     try:
         steam_info = await api.get_steam_profile_by_id(int(account_id))
 
@@ -103,6 +103,25 @@ async def whois(ctx, account_id):
     except Exception as e:
         print("Error:", e)
         await ctx.send(f"Ошибка получения стим профиля с deadlock id {account_id}")
+
+@bot.command(aliases=["lead"])
+async def leaderbord(ctx, region):
+    try:
+        leaderbord = await api.get_leaderboard(region)
+
+        if not leaderbord:
+            await ctx.send(f"Ошибка получения лидерборда региона {region}")
+            return
+        
+        message = ""
+        for i in range(0, 10):
+            message += f"{i} - {leaderbord[i]['account_name']}\n"
+
+        await ctx.send(message)
+
+    except Exception as e:
+        print("Error:", e)
+        await ctx.send(f"Ошибка получения лидерборда региона {region}")
 
 if __name__ == "__main__":
     bot.run(cr.TOKEN)

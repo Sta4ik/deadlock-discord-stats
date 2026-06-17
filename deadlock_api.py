@@ -94,6 +94,28 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_leaderboard(self, region):
+        try:
+            resp = await self.client.get(f"{self.url}/v1/leaderboard/{region}")
+            resp.raise_for_status()
+
+            raw = await resp.aread()
+            data = json.loads(raw)
+
+            if not data:
+                return None
+            
+            profiles = []
+            for i in range(0, 10):
+                profile = data["entries"][i]            
+                profiles.append(profile)
+
+            return profiles
+
+        except Exception as e:
+            print("Error:", e)
+            return None
 
     async def close(self):
         await self.client.aclose()
