@@ -116,6 +116,22 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_rank_image(self, account_id):
+        try:
+            resp = await self.client.get(f"{self.url}/v1/players/{account_id}/rank-predict/image")
+            resp.raise_for_status()
+
+            image_data = await resp.aread()
+
+            if not image_data:
+                return None
+            
+            return image_data
+
+        except Exception as e:
+            print("Error:", e)
+            return None
 
     async def close(self):
         await self.client.aclose()

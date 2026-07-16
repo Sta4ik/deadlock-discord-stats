@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import credits as cr
 from deadlock_api import DeadlockApi
+import io
 
 api = DeadlockApi()
 
@@ -154,6 +155,14 @@ async def who_is(ctx, account_id=None):
         )
 
         embed.set_thumbnail(url=steam_info["avatar"])
+
+        rank_image = await api.get_rank_image(int(account_id))
+        if rank_image:
+            file = discord.File(io.BytesIO(rank_image), filename="rank.png")
+            embed.set_image(url="attachment://rank.png")
+            await ctx.send(embed=embed, file=file)
+        else:
+            await ctx.send(embed=embed)
 
         embed.add_field(name="Настоящее имя", value=steam_info["realname"] or "Не указано", inline=False)
         embed.add_field(name="Матчей за 30 дней", value=steam_info["matches_played_last_30d"], inline=True)
