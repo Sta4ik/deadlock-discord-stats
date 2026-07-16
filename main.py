@@ -14,6 +14,54 @@ bot = commands.Bot(command_prefix='#', intents=intents)
 async def ping(ctx):
     await ctx.send('pong')
 
+@bot.command()
+async def help(ctx):
+    embed = discord.Embed(
+        title="Список команд бота",
+        description="Все команды используют префикс `#`",
+        color=discord.Color.gold()
+    )
+    
+    embed.add_field(
+        name="#ping",
+        value="Проверка работоспособности бота",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="#last или #last_match [deadlock_id]",
+        value="Возвращает информацию о последнем матче игрока\n`Пример: #last 123456`",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="#getid [steam_id]",
+        value="Получает Deadlock ID по SteamID64\n`Пример: #getid 76561198000000000`",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="#whois [account_id]",
+        value="Показывает информацию о Steam профиле по Deadlock ID\n`Пример: #whois 123456`",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="#lead или #leaderbord [регион]",
+        value="Показывает топ-10 игроков в указанном регионе\nДоступные регионы: `Europe`, `Asia`, `NAmerica`, `SAmerica`, `Oceania`\n`Пример: #lead Europe`",
+        inline=False
+    )
+    
+    embed.add_field(
+        name="#help",
+        value="Показывает это сообщение с помощью",
+        inline=False
+    )
+    
+    embed.set_footer(text="Deadlock Stater Bot")
+    
+    await ctx.send(embed=embed)
+
 @bot.command(aliases=["last"])
 async def last_match(ctx, deadlock_id=None):
     try:
