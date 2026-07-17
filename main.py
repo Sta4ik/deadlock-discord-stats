@@ -85,9 +85,9 @@ async def last_match(ctx, deadlock_id=None):
         hero_name = hero["name"]
         hero_icon = hero["images"]["icon_image_small"]
 
-        color = (discord.Color.red() if stats["match_result"] == 0 else discord.Color.green())
-
-        result = "Поражение" if stats["match_result"] == 0 else "Победа"
+        is_win = stats["match_result"] == stats["player_team"]
+        color = discord.Color.green() if is_win else discord.Color.red()
+        result = "Победа" if is_win else "Поражение"
 
         duration_min = stats["match_duration_s"] // 60
         duration_sec = stats["match_duration_s"] % 60
