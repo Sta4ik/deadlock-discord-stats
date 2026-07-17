@@ -16,7 +16,7 @@ async def ping(ctx):
     await ctx.send('pong')
 
 @bot.command()
-async def help(ctx):
+async def helpc(ctx):
     embed = discord.Embed(
         title="Список команд бота",
         description="Все команды используют префикс `#`",
@@ -155,6 +155,8 @@ async def who_is(ctx, account_id=None):
         )
 
         embed.set_thumbnail(url=steam_info["avatar"])
+        embed.add_field(name="Настоящее имя", value=steam_info["realname"] or "Не указано", inline=False)
+        embed.add_field(name="Матчей за 30 дней", value=steam_info["matches_played_last_30d"], inline=True)
 
         rank_image = await api.get_rank_image(int(account_id))
         if rank_image:
@@ -164,10 +166,6 @@ async def who_is(ctx, account_id=None):
         else:
             await ctx.send(embed=embed)
 
-        embed.add_field(name="Настоящее имя", value=steam_info["realname"] or "Не указано", inline=False)
-        embed.add_field(name="Матчей за 30 дней", value=steam_info["matches_played_last_30d"], inline=True)
-
-        await ctx.send(embed=embed)
 
     except Exception as e:
         print("Error:", e)

@@ -119,7 +119,7 @@ class DeadlockApi():
         
     async def get_rank_image(self, account_id):
         try:
-            resp = await self.client.get(f"{self.url}/v1/players/{account_id}/rank-predict/image")
+            resp = await self.client.get(f"{self.url}/v1/players/{account_id}/rank-predict/image?size=small")
             resp.raise_for_status()
 
             image_data = await resp.aread()
