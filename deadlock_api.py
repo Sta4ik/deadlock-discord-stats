@@ -132,6 +132,37 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_all_hero_stats(self):
+        try:
+            resp = await self.client.get(f"{self.url}/v1/analytics/hero-stats?game_mode=normal")
+            resp.raise_for_status()
+
+            raw = await resp.aread()
+            data = json.loads(raw)
+
+            if not data:
+                return None
+            
+            results = []
+            for hero_data in data:
+                results.append({
+                    "hero_id": hero_data["hero_id"],
+                    "wins": hero_data["wins"],
+                    "losses": hero_data["losses"],
+                    "matches": hero_data["matches"],
+                    "kills": hero_data["total_kills"],
+                    "deaths": hero_data["total_deaths"],
+                    "assists": hero_data["total_assists"],
+                    "damage": hero_data["total_player_damage"],
+                    "networth": hero_data["total_net_worth"]
+                })
+            
+            return results
+
+        except Exception as e:
+            print("Error:", e)
+            return None
 
     async def close(self):
         await self.client.aclose()
