@@ -3,6 +3,7 @@ from discord.ext import commands
 import credits as cr
 from deadlock_api import DeadlockApi
 import io
+import asyncio
 
 api = DeadlockApi()
 
@@ -58,6 +59,12 @@ async def helpc(ctx):
         value="Показывает это сообщение с помощью",
         inline=False
     )
+
+    embed.add_field(
+        name="#herostats",
+        value="Показывает статистику персонажей",
+        inline=False
+    )
     
     embed.set_footer(text="Deadlock Stater Bot")
     
@@ -108,7 +115,7 @@ async def last_match(ctx, deadlock_id=None):
         embed.add_field(name="Команда", value=("The Hidden King" if stats["player_team"] == 0 else "The ArchMother"), inline=True)
         embed.add_field(name="Результат", value=result, inline=True)
 
-        embed.set_footer(text="Deadlock stater")
+        embed.set_footer(text="Deadlock Stater Bot")
 
         await ctx.send(embed=embed)
 
@@ -193,6 +200,44 @@ async def leaderbord(ctx, region=None):
     except Exception as e:
         print("Error:", e)
         await ctx.send(f"Ошибка получения лидерборда региона {region}")
+
+@bot.command(aliases=["herostats"])
+async def hero_stats(ctx):
+    try:
+        stats = await api.get_all_hero_stats()
+
+        if not stats:
+            await ctx.send("Не удалось получить статистику персонажей")
+            return
+
+        stats.sort(key=lambda h: h["wins"] / max(h["matches"], 1), reverse=True)
+
+        for hero in stats:
+            hero_assets = await api.get_hero_by_id(hero_id=int(hero["hero_id"]))
+            hero_icon = hero_assets["images"]["icon_image_small"]
+            embed = discord.Embed(
+            title=f"Статистика {hero_assets["name"]}",
+            color=int(hero_assets["color"]["style_hex"].lstrip("#"), 16)
+            )
+
+            embed.set_thumbnail(url=hero_icon)
+
+            embed.add_field(name="Всего матчей", value=hero["matches"], inline=False)
+            embed.add_field(name="Winrate", value=f"{hero["wins"] / hero["matches"] * 100:.1f}%", inline=True)
+            embed.add_field(name="Побед", value=hero["wins"], inline=True)
+            embed.add_field(name="Поражений", value=hero["losses"], inline=True)
+            embed.add_field(name="K/D/A", value=f"{hero['kills']}/{hero['deaths']}/{hero['assists']}", inline=True)
+            embed.add_field(name="Урон", value=hero["damage"], inline=True)
+            embed.add_field(name="Нетворс", value=hero["networth"], inline=True)
+
+            embed.set_footer(text="Deadlock Stater Bot")
+
+            await ctx.send(embed=embed)
+            await asyncio.sleep(0.5)
+
+    except Exception as e:
+        print("Error:", e)
+        await ctx.send("Не удалось получить статистику персонажей")
 
 if __name__ == "__main__":
     bot.run(cr.TOKEN)
