@@ -232,7 +232,7 @@ async def hero_stats(ctx):
             embed.add_field(name="Winrate", value=f"{hero["wins"] / hero["matches"] * 100:.1f}%", inline=True)
             embed.add_field(name="Побед", value=hero["wins"], inline=True)
             embed.add_field(name="Поражений", value=hero["losses"], inline=True)
-            embed.add_field(name="K/D/A", value=f"{hero['kills']}/{hero['deaths']}/{hero['assists']}", inline=True)
+            embed.add_field(name="K/D/A", value=f"{hero['kills'] / hero["matches"]:.1f}/{hero['deaths'] / hero["matches"]:.1f}/{hero['assists'] / hero["matches"]:.1f}", inline=True)
             embed.add_field(name="Урон", value=hero["damage"], inline=True)
             embed.add_field(name="Нетворс", value=hero["networth"], inline=True)
 
