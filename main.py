@@ -1,9 +1,15 @@
+import os
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
-import credits as cr
 from deadlock_api import DeadlockApi
 import io
 import asyncio
+
+load_dotenv()
+TOKEN = os.getenv("TOKEN")
+if not TOKEN:
+    raise ValueError("TOKEN не найден. Проверьте .env файл")
 
 api = DeadlockApi()
 
@@ -240,4 +246,4 @@ async def hero_stats(ctx):
         await ctx.send("Не удалось получить статистику персонажей")
 
 if __name__ == "__main__":
-    bot.run(cr.TOKEN)
+    bot.run(TOKEN)
