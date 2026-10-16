@@ -223,7 +223,7 @@ async def hero_stats(ctx):
             hero_icon = hero_assets["images"]["icon_image_small"]
             embed = discord.Embed(
             title=f"Статистика {hero_assets["name"]}",
-            color=int(hero_assets["color"]["style_hex"].lstrip("#"), 16)
+            color=discord.Color.blue()
             )
 
             embed.set_thumbnail(url=hero_icon)
@@ -232,9 +232,9 @@ async def hero_stats(ctx):
             embed.add_field(name="Winrate", value=f"{hero["wins"] / hero["matches"] * 100:.1f}%", inline=True)
             embed.add_field(name="Побед", value=hero["wins"], inline=True)
             embed.add_field(name="Поражений", value=hero["losses"], inline=True)
-            embed.add_field(name="K/D/A", value=f"{hero['kills'] / hero["matches"]:.1f}/{hero['deaths'] / hero["matches"]:.1f}/{hero['assists'] / hero["matches"]:.1f}", inline=True)
-            embed.add_field(name="Урон", value=hero["damage"], inline=True)
-            embed.add_field(name="Нетворс", value=hero["networth"], inline=True)
+            embed.add_field(name="Средний K/D/A", value=f"{hero['kills'] / hero["matches"]:.1f}/{hero['deaths'] / hero["matches"]:.1f}/{hero['assists'] / hero["matches"]:.1f}", inline=True)
+            embed.add_field(name="Средний урон", value=f"{hero["damage"] / hero["matches"]:.1f}", inline=True)
+            embed.add_field(name="Средний нетворс", value=f"{hero["networth"] / hero["matches"]:.1f}", inline=True)
 
             embed.set_footer(text="Deadlock Stater Bot")
 
