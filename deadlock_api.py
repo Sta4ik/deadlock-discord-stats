@@ -1,5 +1,6 @@
 import httpx
 import json
+from datetime import datetime, timedelta
 
 class DeadlockApi():
     def __init__(self):
@@ -160,6 +161,30 @@ class DeadlockApi():
             
             return results
 
+        except Exception as e:
+            print("Error:", e)
+            return None
+
+    async def get_patch_info(self):
+        try:
+            resp = await self.client.get(f"{self.url}/v2/patches")
+            resp.raise_for_status()
+
+            raw = await resp.aread()
+            data = json.loads(raw)
+
+            if not data:
+                return None
+            
+            date = datetime.fromisoformat(data[0]["pub_date"]) + timedelta(hours=3)
+        
+            return {
+                "source": data[0]["source"],
+                "title": data[0]["title"],
+                "date": date,
+                "link": data[0]["link"]
+            }
+        
         except Exception as e:
             print("Error:", e)
             return None
