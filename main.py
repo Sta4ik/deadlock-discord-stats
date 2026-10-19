@@ -71,6 +71,12 @@ async def helpc(ctx):
         value="Показывает статистику персонажей",
         inline=False
     )
+
+    embed.add_field(
+        name="#patch или #patch_info",
+        value="Показывает информацию о последнем патче Deadlock",
+        inline=False
+    )
     
     embed.set_footer(text="Deadlock Stater Bot")
     
@@ -244,6 +250,39 @@ async def hero_stats(ctx):
     except Exception as e:
         print("Error:", e)
         await ctx.send("Не удалось получить статистику персонажей")
+
+@bot.command(aliases=["patch"])
+async def patch_info(ctx):
+    try:
+        patch = await api.get_patch_info()
+
+        if not patch:
+            await ctx.send("Не удалось получить информацию о патче")
+            return
+
+        embed = discord.Embed(
+            title=patch["title"],
+            url=patch["link"],
+            color=discord.Color.blue()
+        )
+        embed.add_field(
+            name="Источник",
+            value="Steam" if patch["source"] == "steam" else "Форум",
+            inline=True,
+        )
+        embed.add_field(
+            name="Дата",
+            value=patch["date"].strftime("%d.%m.%Y %H:%M"),
+            inline=True,
+        )
+
+        embed.set_footer(text="Deadlock Stater Bot")
+
+        await ctx.send(embed=embed)
+
+    except Exception as e:
+        print("Error:", e)
+        await ctx.send("Не удалось получить информацию о патче")
 
 if __name__ == "__main__":
     bot.run(TOKEN)
