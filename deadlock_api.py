@@ -188,6 +188,23 @@ class DeadlockApi():
         except Exception as e:
             print("Error:", e)
             return None
+        
+    async def get_crosshair(self, crosshair_code):
+        try:
+            resp = await self.client.get(f"{self.url}/v1/crosshair/code/image?code={crosshair_code}&screen_height=1080&scale=1")
+            resp.raise_for_status()
+
+            raw = await resp.aread()
+            crosshair_image = json.loads(raw)
+
+            if not crosshair_image:
+                return None
+            
+            return crosshair_image
+            
+        except Exception as e:
+            print("Error:", e)
+            return None
 
     async def close(self):
         await self.client.aclose()
