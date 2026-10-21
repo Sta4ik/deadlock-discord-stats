@@ -77,6 +77,12 @@ async def helpc(ctx):
         value="Показывает информацию о последнем патче Deadlock",
         inline=False
     )
+
+    embed.add_field(
+        name="#crosshair [код прицела]",
+        value="Показывает изображение прицела по указанному коду\n`Пример: #crosshair DL.ASFQWG8kgfdi2LfWOQM...`",
+        inline=False
+    )
     
     embed.set_footer(text="Deadlock Stater Bot")
     
@@ -283,6 +289,32 @@ async def patch_info(ctx):
     except Exception as e:
         print("Error:", e)
         await ctx.send("Не удалось получить информацию о патче")
+
+@bot.command()
+async def crosshair(ctx, crosshair_code=None):
+    try:
+        if not crosshair_code:
+            await ctx.send("Укажите код прицела")
+            return
+
+        embed = discord.Embed(
+            title="Прицел",
+            description=f"Код: `{crosshair_code}`",
+            color=discord.Color.blue(),
+        )
+
+        embed.set_footer(text="Deadlock Stater Bot")
+        crosshair_image = await api.get_crosshair(crosshair_code)
+        if crosshair_image:
+            file = discord.File(io.BytesIO(crosshair_image), filename="crosshair.png")
+            embed.set_image(url="attachment://crosshair.png")
+            await ctx.send(embed=embed, file=file)
+        else:
+            await ctx.send("Не удалось получить изображение прицела")
+    
+    except Exception as e:
+        print("Error", e)
+        await ctx.send("Не удалось получить изображение прицела")
 
 if __name__ == "__main__":
     bot.run(TOKEN)
