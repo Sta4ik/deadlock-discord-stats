@@ -61,7 +61,7 @@ async def helpc(ctx):
     )
     
     embed.add_field(
-        name="#help",
+        name="#helpc",
         value="Показывает это сообщение с помощью",
         inline=False
     )
