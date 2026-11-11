@@ -194,8 +194,7 @@ class DeadlockApi():
             resp = await self.client.get(f"{self.url}/v1/crosshair/code/image?code={crosshair_code}&screen_height=1080&scale=1")
             resp.raise_for_status()
 
-            raw = await resp.aread()
-            crosshair_image = json.loads(raw)
+            crosshair_image = await resp.aread()
 
             if not crosshair_image:
                 return None
