@@ -1,24 +1,46 @@
 import httpx
-import json
 from datetime import datetime, timedelta
+
+ID_SHIT = 76561197960265728
 
 class DeadlockApi():
     def __init__(self):
         self.url = 'https://api.deadlock-api.com'
         self.client = httpx.AsyncClient(timeout=30)
 
-    async def get_player_last_match(self, account_id):
+    async def _get_json(self, path, transform=None):
         try:
-            resp = await self.client.get(f'{self.url}/v1/players/{account_id}/match-history')
+            resp = await self.client.get(f'{self.url}{path}')
             resp.raise_for_status()
-            raw = await resp.aread()
-            data = json.loads(raw)
+            data = resp.json()
             
             if not data:
                 return None
             
-            match = data[0]
+            return transform(data) if transform is not None else data
 
+        except Exception as e:
+            print("Error:", e)
+            return None
+
+    async def _get_bytes(self, path):
+        try:
+            resp = await self.client.get(f'{self.url}{path}')
+            resp.raise_for_status()
+            data = resp.content
+
+            if not data:
+                return None
+
+            return data
+
+        except Exception as e:
+            print("Error:", e)
+            return None
+
+    async def get_player_last_match(self, account_id):
+        def _map(data):
+            match = data[0]
             return {
                 "match_id": match["match_id"],
                 "hero_id": match["hero_id"],
@@ -33,31 +55,15 @@ class DeadlockApi():
                 "match_result": match["match_result"],
             }
 
-        except Exception as e:
-            print("Error:", e)
-            return None
+        return await self._get_json(f"/v1/players/{account_id}/match-history",
+            transform=_map)
         
     async def get_hero_by_id(self, hero_id):
-        try:
-            resp = await self.client.get(f"{self.url}/v1/assets/heroes/{hero_id}")
-            resp.raise_for_status()
-
-            raw = await resp.aread()
-            data = json.loads(raw)
-
-            if not data:
-                return None
-            
-            return data
-
-        except Exception as e:
-            print("Error:", e)
-            return None
+        return await self._get_json(f"/v1/assets/heroes/{hero_id}")
         
     async def get_id_by_steam_id(self, steam_id):
         try:
-            id = steam_id - 76561197960265728
-            return id
+            return steam_id - ID_SHIT
         
         except Exception as e:
             print("Error:", e)
@@ -65,89 +71,44 @@ class DeadlockApi():
         
     async def get_steam_id_by_id(self, id):
         try:
-            steam_id = id + 76561197960265728
-            return steam_id
+            return id + ID_SHIT
         
         except Exception as e:
             print("Error:", e)
             return None
         
     async def get_steam_profile_by_id(self, id):
-        try:
-            steam_id = await self.get_steam_id_by_id(id)
-            resp = await self.client.get(f"{self.url}/v1/players/steam?account_ids={steam_id}")
-            resp.raise_for_status()
+        steam_id = await self.get_steam_id_by_id(id)
 
-            raw = await resp.aread()
-            data = json.loads(raw)
-
-            if not data:
-                return None
-            
+        def _map(data):
+            profile = data[0]
             return {
-                "name": data[0]["personaname"],
-                "realname": data[0]["realname"],
-                "avatar": data[0]["avatar"],
-                "steam_url": data[0]["profileurl"],
-                "matches_played_last_30d": data[0]["matches_played_last_30d"]
+                "name": profile["personaname"],
+                "realname": profile["realname"],
+                "avatar": profile["avatar"],
+                "steam_url": profile["profileurl"],
+                "matches_played_last_30d": profile["matches_played_last_30d"],
             }
-        
-        except Exception as e:
-            print("Error:", e)
-            return None
+
+        return await self._get_json(f"/v1/players/steam?account_ids={steam_id}",
+            transform=_map)
+
         
     async def get_leaderboard(self, region):
-        try:
-            resp = await self.client.get(f"{self.url}/v1/leaderboard/{region}")
-            resp.raise_for_status()
+        def _map(data):
+            return [data["entries"][i] for i in range(0, 10)]
 
-            raw = await resp.aread()
-            data = json.loads(raw)
-
-            if not data:
-                return None
-            
-            profiles = []
-            for i in range(0, 10):
-                profile = data["entries"][i]            
-                profiles.append(profile)
-
-            return profiles
-
-        except Exception as e:
-            print("Error:", e)
-            return None
+        return await self._get_json(f"/v1/leaderboard/{region}",
+            transform=_map)
         
     async def get_rank_image(self, account_id):
-        try:
-            resp = await self.client.get(f"{self.url}/v1/players/{account_id}/rank-predict/image?size=small")
-            resp.raise_for_status()
+        return await self._get_bytes(f"/v1/players/{account_id}/rank-predict/image?size=small")
 
-            image_data = await resp.aread()
 
-            if not image_data:
-                return None
-            
-            return image_data
-
-        except Exception as e:
-            print("Error:", e)
-            return None
-        
     async def get_all_hero_stats(self):
-        try:
-            resp = await self.client.get(f"{self.url}/v1/analytics/hero-stats?game_mode=normal")
-            resp.raise_for_status()
-
-            raw = await resp.aread()
-            data = json.loads(raw)
-
-            if not data:
-                return None
-            
-            results = []
-            for hero_data in data:
-                results.append({
+        def _map(data):
+            return [
+                {
                     "hero_id": hero_data["hero_id"],
                     "wins": hero_data["wins"],
                     "losses": hero_data["losses"],
@@ -156,54 +117,30 @@ class DeadlockApi():
                     "deaths": hero_data["total_deaths"],
                     "assists": hero_data["total_assists"],
                     "damage": hero_data["total_player_damage"],
-                    "networth": hero_data["total_net_worth"]
-                })
-            
-            return results
+                    "networth": hero_data["total_net_worth"],
+                }
+                for hero_data in data
+            ]
 
-        except Exception as e:
-            print("Error:", e)
-            return None
+        return await self._get_json("/v1/analytics/hero-stats?game_mode=normal",
+            transform=_map)
 
     async def get_patch_info(self):
-        try:
-            resp = await self.client.get(f"{self.url}/v2/patches")
-            resp.raise_for_status()
-
-            raw = await resp.aread()
-            data = json.loads(raw)
-
-            if not data:
-                return None
-            
-            date = datetime.fromisoformat(data[0]["pub_date"]) + timedelta(hours=3)
-        
+        def _map(data):
+            patch = data[0]
+            date = datetime.fromisoformat(patch["pub_date"]) + timedelta(hours=3)
             return {
-                "source": data[0]["source"],
-                "title": data[0]["title"],
+                "source": patch["source"],
+                "title": patch["title"],
                 "date": date,
-                "link": data[0]["link"]
+                "link": patch["link"],
             }
-        
-        except Exception as e:
-            print("Error:", e)
-            return None
+
+        return await self._get_json("/v2/patches", 
+            transform=_map)
         
     async def get_crosshair(self, crosshair_code):
-        try:
-            resp = await self.client.get(f"{self.url}/v1/crosshair/code/image?code={crosshair_code}&screen_height=1080&scale=1")
-            resp.raise_for_status()
-
-            crosshair_image = await resp.aread()
-
-            if not crosshair_image:
-                return None
-            
-            return crosshair_image
-            
-        except Exception as e:
-            print("Error:", e)
-            return None
+        return await self._get_bytes(f"/v1/crosshair/code/image?code={crosshair_code}&screen_height=1080&scale=1")
 
     async def close(self):
         await self.client.aclose()

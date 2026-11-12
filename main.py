@@ -128,7 +128,7 @@ async def last_match(ctx, deadlock_id=None):
         embed.add_field(name="Матч ID", value=stats["match_id"], inline=False)
         embed.add_field(name="K/D/A", value=f"{stats['player_kills']}/{stats['player_deaths']}/{stats['player_assists']}", inline=True)
         embed.add_field(name="Нетворс", value=stats["net_worth"], inline=True)
-        embed.add_field(name="Длительность", value=f"{duration_min}:{duration_sec} мин", inline=True)
+        embed.add_field(name="Длительность", value=f"{duration_min}:{duration_sec:02d} мин", inline=True)
 
         embed.add_field(name="Команда", value=("The Hidden King" if stats["player_team"] == 0 else "The ArchMother"), inline=True)
         embed.add_field(name="Результат", value=result, inline=True)
@@ -197,7 +197,7 @@ async def who_is(ctx, account_id=None):
         await ctx.send(f"Ошибка получения стим профиля с deadlock id {account_id}")
 
 @bot.command(aliases=["lead"])
-async def leaderbord(ctx, region=None):
+async def leaderboard(ctx, region=None):
     try:
         if not region:
             await ctx.send("Укажите регион (Europe, Asia, NAmerica, SAmerica, Oceania)")
